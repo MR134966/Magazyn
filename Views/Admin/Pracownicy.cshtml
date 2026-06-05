@@ -1,0 +1,214 @@
+﻿@model IEnumerable<Proejkt_magazyn.Models.UserWithRolesViewModel>
+@{
+    var noweKonto = ViewBag.NoweKonto as Proejkt_magazyn.Models.DodajKontoViewModel ?? new Proejkt_magazyn.Models.DodajKontoViewModel();
+    string EtykietaRoli(IList<string> role)
+    {
+        if (role.Contains("Admin")) return "Administrator";
+        if (role.Contains("Kierownik")) return "Kierownik sklepu";
+        if (role.Contains("Pracownik")) return "Pracownik magazynu";
+        return role.FirstOrDefault() ?? "Brak";
+    }
+}
+
+<div class="container-fluid mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h3 class="fw-bold mb-4"><i class="bi bi-people me-2"></i> Konta użytkowników</h3>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white fw-bold py-3">
+            <i class="bi bi-person-plus-fill text-primary me-2"></i> Dodaj nowe konto
+        </div>
+        <div class="card-body">
+            
+            <ul class="nav nav-tabs mb-4" id="kontoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="pracownik-tab" data-bs-toggle="tab" data-bs-target="#pracownik" type="button" role="tab" aria-controls="pracownik" aria-selected="true">
+                        <i class="bi bi-box-seam me-1"></i> Pracownik Magazynu
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-info" id="kierownik-tab" data-bs-toggle="tab" data-bs-target="#kierownik" type="button" role="tab" aria-controls="kierownik" aria-selected="false">
+                        <i class="bi bi-shop me-1"></i> Kierownik Sklepu
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="kontoTabsContent">
+                <div class="tab-pane fade show active" id="pracownik" role="tabpanel" aria-labelledby="pracownik-tab">
+                    <form asp-controller="Admin" asp-action="DodajKonto" method="post" class="row g-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="TypKonta" value="Pracownik" />
+                        
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">E-mail (login)</label>
+                            <input name="Email" class="form-control" placeholder="jan@magazyn.pl" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Hasło dostępowe</label>
+                            <input name="Haslo" type="password" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Numer skanera</label>
+                            <input name="NumerSkanera" class="form-control" placeholder="np. SKN-008" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Imię</label>
+                            <input name="Imie" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Nazwisko</label>
+                            <input name="Nazwisko" class="form-control" required />
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary fw-bold">
+                                <i class="bi bi-person-plus me-1"></i> Utwórz Pracownika
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade" id="kierownik" role="tabpanel" aria-labelledby="kierownik-tab">
+                    <form asp-controller="Admin" asp-action="DodajKonto" method="post" class="row g-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="TypKonta" value="Kierownik" />
+                        
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-info">E-mail (login)</label>
+                            <input name="Email" class="form-control border-info" placeholder="kierownik@zabka.pl" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-info">Hasło dostępowe</label>
+                            <input name="Haslo" type="password" class="form-control border-info" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-info">Przypisany Sklep</label>
+                            <input name="Sklep" class="form-control border-info" placeholder="np. Sklep #123" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-info">Imię</label>
+                            <input name="Imie" class="form-control border-info" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-info">Nazwisko</label>
+                            <input name="Nazwisko" class="form-control border-info" required />
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-info text-white fw-bold shadow-sm">
+                                <i class="bi bi-shop-window me-1"></i> Utwórz Kierownika
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>E-mail</th>
+                        <th>Imię i nazwisko</th>
+                        <th>Przypisanie</th>
+                        <th>Typ konta</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        var rola = EtykietaRoli(u.Roles);
+                        var czyAdmin = u.Roles.Contains("Admin");
+                        var czyKierownik = u.Roles.Contains("Kierownik");
+                        var przypisanie = czyKierownik
+                            ? (string.IsNullOrEmpty(u.User.Sklep) ? "—" : u.User.Sklep)
+                            : (string.IsNullOrEmpty(u.User.NumerSkanera) ? "—" : $"Skaner {u.User.NumerSkanera}");
+                        <tr class="@(u.CzyZablokowany ? "table-secondary" : "")">
+                            <td class="fw-bold">@u.User.Email</td>
+                            <td>@u.User.Imie @u.User.Nazwisko</td>
+                            <td>@przypisanie</td>
+                            <td>
+                                @if (czyAdmin)
+                                {
+                                    <span class="badge bg-danger">@rola</span>
+                                }
+                                else if (czyKierownik)
+                                {
+                                    <span class="badge bg-info text-dark">@rola</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary">@rola</span>
+                                }
+                            </td>
+                            <td>
+                                @if (u.CzyZablokowany)
+                                {
+                                    <span class="badge bg-secondary">Zablokowane</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Aktywne</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                @if (!czyAdmin)
+                                {
+                                    if (u.CzyZablokowany)
+                                    {
+                                        <form asp-controller="Admin" asp-action="OdblokujKonto" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@u.User.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Odblokuj">
+                                                <i class="bi bi-unlock-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Admin" asp-action="ZablokujKonto" method="post" class="d-inline" onsubmit="return confirm('Zablokować to konto?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@u.User.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-warning text-dark" title="Zablokuj">
+                                                <i class="bi bi-lock-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    
+                                    <form asp-controller="Admin" asp-action="UsunKonto" method="post" class="d-inline ms-1" onsubmit="return confirm('UWAGA! Czy na pewno chcesz TRWALE usunąć to konto?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@u.User.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Usuń konto">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

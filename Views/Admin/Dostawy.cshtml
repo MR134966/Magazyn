@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Proejkt_magazyn.Models.Produkt>
+
+<div class="container-fluid mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h3 class="fw-bold mb-4"><i class="bi bi-truck me-2"></i> Panel przyjęć towarowych</h3>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>EAN</th>
+                        <th>Produkt</th>
+                        <th class="text-center">Stan magazynowy</th>
+                        <th class="text-end pe-4">Przyjęcie dostawy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="text-muted small">@p.KodKreskowy</td>
+                            <td class="fw-bold">@p.Nazwa</td>
+                            <td class="text-center">
+                                @if (p.StanMagazynowy == 0)
+                                {
+                                    <span class="badge bg-danger fs-6" id="stan-@p.Id">0 szt.</span>
+                                }
+                                else if (p.StanMagazynowy < 15)
+                                {
+                                    <span class="badge bg-warning text-dark fs-6" id="stan-@p.Id">@p.StanMagazynowy szt.</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success fs-6" id="stan-@p.Id">@p.StanMagazynowy szt.</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <form asp-controller="Admin" asp-action="ZapiszDostawe" method="post" class="d-inline-flex gap-2 align-items-center">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="produktId" value="@p.Id" />
+                                    <input type="number" name="ilosc" class="form-control form-control-sm text-center" style="width: 90px;" value="50" min="1" required />
+                                    <button type="submit" class="btn btn-sm btn-success fw-bold">
+                                        <i class="bi bi-box-arrow-in-down me-1"></i> Przyjmij
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

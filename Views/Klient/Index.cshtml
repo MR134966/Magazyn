@@ -1,0 +1,59 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<Proejkt_magazyn.Models.ApplicationUser> UserManager
+@model IEnumerable<Proejkt_magazyn.Models.Zamowienie>
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<div class="container-fluid mt-4">
+    <div class="bg-primary text-white p-4 rounded-3 mb-4 shadow d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">Witaj, @user.Imie @user.Nazwisko!</h2>
+            <p class="mb-0 text-white-50">
+                @if(User.IsInRole("Kierownik"))
+                {
+                    <i class="bi bi-shop"></i> <span>Twoje zamówienia</span>
+                }
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-bold py-3">
+            <i class="bi bi-list-check text-primary me-2"></i> Historia zamówień
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID Zamówienia</th>
+                            <th>Sklep</th>
+                            <th>Ilość Pozycji</th>
+                            <th>Szczegóły</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">Brak zamówień w historii. Przejdź do oferty gazetkowej, aby złożyć zamówienie.</td>
+                            </tr>
+                        }
+                        @foreach (var zamowienie in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">#@zamowienie.Id</td>
+                                <td>@zamowienie.NazwaKlienta</td>
+                                <td>@zamowienie.Pozycje.Count() szt.</td>
+                                <td>
+                                    <a asp-action="SzczegolyZamowienia" asp-route-id="@zamowienie.Id" class="btn btn-sm btn-outline-primary">Szczegóły</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

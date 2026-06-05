@@ -1,0 +1,16 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Błąd";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-danger border-0 shadow-sm">
+        <h1 class="h4 fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Wystąpił błąd</h1>
+        <p class="mb-0">Spróbuj odświeżyć stronę. Jeśli problem się powtarza, skontaktuj się z administratorem.</p>
+        @if (Model.ShowRequestId)
+        {
+            <p class="small text-muted mt-3 mb-0">Identyfikator: <code>@Model.RequestId</code></p>
+        }
+    </div>
+    <a asp-controller="Home" asp-action="RedirectUser" class="btn btn-primary">Wróć do aplikacji</a>
+</div>

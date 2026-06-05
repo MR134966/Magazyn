@@ -1,0 +1,106 @@
+﻿@model Proejkt_magazyn.Models.UstawieniaViewModel
+
+<style>
+    
+    .menu-ustawien .nav-link {
+        margin-left: 0 !important;
+    }
+    .menu-ustawien .nav-link.active {
+        color: #ffffff !important; 
+        background-color: #0d6efd !important;
+    }
+</style>
+
+<div class="container mt-5" style="max-width: 800px;">
+    
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["StatusMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-dark text-white p-4">
+            <h3 class="mb-0 fw-bold"><i class="bi bi-gear-fill me-2"></i> Ustawienia Konta</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <div class="col-md-4 bg-light border-end">
+                    <div class="nav flex-column nav-pills p-3 menu-ustawien" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link active text-start fw-bold mb-2" id="v-pills-profil-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profil" type="button" role="tab">
+                            <i class="bi bi-person-badge me-2"></i> Dane Osobiste
+                        </button>
+                        <button class="nav-link text-start fw-bold" id="v-pills-bezpieczenstwo-tab" data-bs-toggle="pill" data-bs-target="#v-pills-bezpieczenstwo" type="button" role="tab">
+                            <i class="bi bi-shield-lock me-2"></i> Bezpieczeństwo
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-8 p-4">
+                    <div class="tab-content" id="v-pills-tabContent">
+                        
+                        
+                        <div class="tab-pane fade show active" id="v-pills-profil" role="tabpanel">
+                            <h5 class="fw-bold mb-4">Informacje Podstawowe</h5>
+                            <form asp-action="ZapiszProfil" method="post">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Imię</label>
+                                        <input asp-for="Imie" class="form-control" />
+                                        <span asp-validation-for="Imie" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Nazwisko</label>
+                                        <input asp-for="Nazwisko" class="form-control" />
+                                        <span asp-validation-for="Nazwisko" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small">Adres E-mail (Login)</label>
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary fw-bold px-4">Zapisz Zmiany</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        
+                        <div class="tab-pane fade" id="v-pills-bezpieczenstwo" role="tabpanel">
+                            <h5 class="fw-bold mb-4">Zmiana Hasła</h5>
+                            <form asp-action="ZmienHaslo" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Obecne hasło</label>
+                                    <input asp-for="AktualneHaslo" class="form-control" />
+                                </div>
+                                <hr class="my-4">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Nowe hasło</label>
+                                    <input asp-for="NoweHaslo" class="form-control" />
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small">Potwierdź nowe hasło</label>
+                                    <input asp-for="PotwierdzNoweHaslo" class="form-control" />
+                                    <span asp-validation-for="PotwierdzNoweHaslo" class="text-danger small"></span>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-danger fw-bold px-4">Zaktualizuj Hasło</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

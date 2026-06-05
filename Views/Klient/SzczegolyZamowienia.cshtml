@@ -1,0 +1,53 @@
+﻿@model Proejkt_magazyn.Models.Zamowienie
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary"><i class="bi bi-file-earmark-text"></i> Szczegóły Zamówienia #@Model.Id</h3>
+        <a asp-action="Index" class="btn btn-outline-dark fw-bold"><i class="bi bi-arrow-left"></i> Powrót</a>
+        <a asp-controller="Klient" asp-action="PobierzDokumentWz" asp-route-id="@Model.Id" target="_blank" class="btn btn-danger fw-bold shadow-sm">
+            <i class="bi bi-file-earmark-pdf-fill me-2"></i> POBIERZ WZ (PDF)
+        </a>
+    </div>
+    
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th class="py-3 ps-4">Produkt</th>
+                            <th>Kod Kreskowy</th>
+                            <th class="text-center">Ilość</th>
+                            <th class="text-end">Cena jedn. (Brutto)</th>
+                            <th class="text-end pe-4">Wartość</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var poz in Model.Pozycje)
+                        {
+                            <tr>
+                                <td class="fw-bold ps-4">
+                                    @poz.Produkt.Nazwa
+                                    @if(poz.Produkt.CzyGazetka)
+                                    {
+                                        <span class="badge bg-danger ms-2"><i class="bi bi-tags-fill"></i> HIT</span>
+                                    }
+                                </td>
+                                <td><i class="bi bi-upc-scan text-muted"></i> @poz.Produkt.KodKreskowy</td>
+                                <td class="text-center fw-bold text-primary">@poz.IloscSztuk szt.</td>
+                                <td class="text-end">@poz.Produkt.CenaBrutto.ToString("0.00") zł</td>
+                                <td class="text-end fw-bold pe-4">@((poz.IloscSztuk * poz.Produkt.CenaBrutto).ToString("0.00")) zł</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <th colspan="4" class="text-end py-3 fs-5">Suma całkowita:</th>
+                            <th class="text-end pe-4 text-success fs-5 fw-bold">@Model.Pozycje.Sum(p => p.IloscSztuk * p.Produkt.CenaBrutto).ToString("0.00") zł</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,247 @@
+﻿@model IEnumerable<Proejkt_magazyn.Models.Produkt>
+@{
+ViewData["Title"] = "Statystyki magazynu";
+}
+
+<style>
+    .stat-card {
+        border: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+    }
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.35;
+    }
+    .chart-card {
+        border: 0;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+</style>
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-fill text-primary me-2"></i> Statystyki magazynu</h2>
+            <p class="text-muted mb-0">Dane na żywo ze stanów magazynowych (@DateTime.Now.ToString("dd.MM.yyyy HH:mm"))</p>
+        </div>
+        <a asp-controller="Admin" asp-action="Dostawy" class="btn btn-outline-primary">
+            <i class="bi bi-truck me-1"></i> Przejdź do dostaw
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg-2">
+            <div class="card stat-card bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-uppercase small opacity-75 mb-1">Sztuk na stanie</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.SumaSztukNaStanie</h3>
+                        </div>
+                        <i class="bi bi-boxes stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card stat-card bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-uppercase small opacity-75 mb-1">Wartość stanów</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.SumaWartosci</h3>
+                        </div>
+                        <i class="bi bi-currency-exchange stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card stat-card bg-dark text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-uppercase small opacity-75 mb-1">Asortyment</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.IloscProduktow</h3>
+                            <small class="opacity-75">pozycji SKU</small>
+                        </div>
+                        <i class="bi bi-grid stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card stat-card bg-danger text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-uppercase small opacity-75 mb-1">Braki (0 szt.)</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.Braki</h3>
+                        </div>
+                        <i class="bi bi-exclamation-octagon stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card stat-card bg-warning text-dark shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-uppercase small opacity-75 mb-1">Niskie stany (&lt;10)</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.NiskieStany</h3>
+                            <small>śr. @ViewBag.SredniStan szt. / SKU</small>
+                        </div>
+                        <i class="bi bi-graph-down-arrow stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card chart-card h-100">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="fw-bold mb-0">Stan magazynowy wg alejek</h5>
+                    <small class="text-muted">Suma sztuk na stanie w każdej strefie</small>
+                </div>
+                <div class="card-body">
+                    <canvas id="wykresAlejki" height="110"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card chart-card h-100">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="fw-bold mb-0">Udział gazetkowy (szt.)</h5>
+                    <small class="text-muted">@ViewBag.StanPromocja szt. w promocji / @ViewBag.SumaSztukNaStanie łącznie</small>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="wykresPromocja" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card chart-card mt-4">
+        <div class="card-header bg-white border-0 pt-4">
+            <h5 class="fw-bold mb-0">Top 10 pozycji — najniższy stan</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Produkt</th>
+                    <th>Aleja</th>
+                    <th class="text-center">Stan</th>
+                    <th class="text-end">Wartość stanu</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var p in Model.OrderBy(x => x.StanMagazynowy).Take(10))
+                {
+                var nazwaAlejki = p.Aleja switch
+                {
+                "GRO" => "Spożywcze",
+                "BEA" => "Kosmetyki",
+                "APP" => "Ubrania",
+                "FUR" => "Meble",
+                "MAG" => "Chemia/Magazyn",
+                "LAP" => "Laptopy",
+                "SMA" => "Telefony",
+                "SPO" => "Sport",
+                "VEH" => "Motoryzacja",
+                "AGD" => "AGD i Różne",
+                "MIX" => "AGD i Różne",
+                _ => p.Aleja
+                };
+                <tr>
+                    <td class="fw-semibold">@p.Nazwa</td>
+                    <td><span class="badge bg-secondary">@nazwaAlejki</span></td>
+                    <td class="text-center">
+                        @if (p.StanMagazynowy == 0)
+                        {
+                        <span class="badge bg-danger">0</span>
+                        }
+                        else if (p.StanMagazynowy < 10)
+                        {
+                        <span class="badge bg-warning text-dark">@p.StanMagazynowy</span>
+                        }
+                        else
+                        {
+                        <span class="badge bg-success">@p.StanMagazynowy</span>
+                        }
+                    </td>
+                    <td class="text-end fw-bold">@((p.CenaBrutto * p.StanMagazynowy).ToString("C"))</td>
+                </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const pelneNazwyAlejek = {
+        "GRO": "Spożywcze",
+        "BEA": "Kosmetyki",
+        "APP": "Ubrania",
+        "FUR": "Meble",
+        "MAG": "Chemia",
+        "LAP": "Laptopy",
+        "SMA": "Telefony",
+        "SPO": "Sport",
+        "VEH": "Motoryzacja",
+        "AGD": "AGD i Różne",
+        "MIX": "AGD i Różne"
+    };
+
+    const oryginalneLabels = [@Html.Raw(ViewBag.AlejkiLabels)];
+    const daneAlejki = [@ViewBag.AlejkiStany];
+
+    const labelsAlejki = oryginalneLabels.map(kod => pelneNazwyAlejek[kod] || kod);
+
+    new Chart(document.getElementById('wykresAlejki'), {
+        type: 'bar',
+        data: {
+            labels: labelsAlejki,
+            datasets: [{
+                label: 'Sztuk na stanie',
+                data: daneAlejki,
+                backgroundColor: 'rgba(13, 110, 253, 0.75)',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'szt.' } } }
+        }
+    });
+
+    new Chart(document.getElementById('wykresPromocja'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Poza gazetką', 'Gazetka'],
+            datasets: [{
+                data: [@ViewBag.StanPozaPromocja, @ViewBag.StanPromocja],
+                backgroundColor: ['#6c757d', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>

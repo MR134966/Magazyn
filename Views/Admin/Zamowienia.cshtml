@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Proejkt_magazyn.Models.Zamowienie>
+
+<div class="container-fluid mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h3 class="fw-bold mb-2"><i class="bi bi-receipt me-2"></i> Wszystkie zamówienia</h3>
+    <p class="text-muted mb-4">Podgląd zamówień ze wszystkich sklepów.</p>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Klient (sklep)</th>
+                        <th>Pozycje</th>
+                        <th>Postęp kompletacji</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Brak zamówień w systemie.</td>
+                        </tr>
+                    }
+                    @foreach (var z in Model)
+                    {
+                        var liczbaPozycji = z.Pozycje.Count;
+                        var zebrane = z.Pozycje.Count(p => p.CzyZebrane);
+                        var postep = liczbaPozycji > 0 ? (zebrane * 100) / liczbaPozycji : 0;
+                        <tr>
+                            <td class="fw-bold">#@z.Id.ToString("00000")</td>
+                            <td>@z.DataZlozenia.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@z.NazwaKlienta</td>
+                            <td>
+                                <span class="badge bg-secondary">@liczbaPozycji poz.</span>
+                                <small class="text-muted ms-1">(@z.Pozycje.Sum(p => p.IloscSztuk) szt.)</small>
+                            </td>
+                            <td style="min-width: 180px;">
+                                @if (liczbaPozycji == 0)
+                                {
+                                    <span class="badge bg-secondary">Brak pozycji</span>
+                                }
+                                else if (postep == 100)
+                                {
+                                    <span class="badge bg-success">Zakończone</span>
+                                }
+                                else if (postep > 0)
+                                {
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: @postep%"></div>
+                                    </div>
+                                    <small class="text-muted">@zebrane / @liczbaPozycji pozycji</small>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary">Oczekuje</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

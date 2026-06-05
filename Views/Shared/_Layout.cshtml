@@ -1,0 +1,130 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<Proejkt_magazyn.Models.ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SmartWMS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f9; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
+        .navbar { background-color: #111417 !important; border-bottom: 2px solid #0d6efd; padding: 15px 0; }
+        .navbar-brand { font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #fff !important; cursor: default; }
+        .nav-link { color: #8a949d !important; font-weight: 600; margin-left: 15px; transition: 0.2s; }
+        .nav-link:hover, .nav-link.active { color: #0d6efd !important; }
+
+        .user-section { background: #1c2126; padding: 6px 18px; border-radius: 50px; border: 1px solid #2d343b; text-decoration: none; transition: all 0.2s ease-in-out; display: inline-block; cursor: pointer; }
+        .user-section:hover { background: #2d343b; border-color: #0d6efd; }
+
+        footer { background: #111417; color: #6c757d; padding: 30px 0; margin-top: auto; border-top: 1px solid #2d343b; }
+        .footer-status { color: #20c997; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+        .footer-dot { height: 8px; width: 8px; background-color: #20c997; border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 2s infinite; }
+
+        @@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="d-flex flex-column">
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0">
+                <i class="bi bi-box-seam-fill text-primary me-2"></i>SmartWMS
+            </span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @if (User.IsInRole("Pracownik"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Pracownik" asp-action="ListaZlecen">
+                            <i class="bi bi-grid-1x2-fill me-1"></i> Lista zleceń
+                        </a>
+                    </li>
+                    }
+
+                    @if (User.IsInRole("Kierownik"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Klient" asp-action="Gazetka">
+                            <i class="bi bi-tags-fill me-1"></i> Oferta Gazetkowa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Klient" asp-action="Index">
+                            <i class="bi bi-list-check me-1"></i> Moje Zamówienia
+                        </a>
+                    </li>
+                    }
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-warning fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-shield-lock-fill"></i> Panel Admina
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index"><i class="bi bi-speedometer2 me-2 text-primary"></i> Kokpit</a></li>
+                            <li><hr class="dropdown-divider border-secondary"></li>
+                            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Zamowienia"><i class="bi bi-receipt me-2 text-info"></i> Zamówienia</a></li>
+                            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dostawy"><i class="bi bi-truck me-2 text-success"></i> Dostawy</a></li>
+                            <li><a class="dropdown-item" asp-controller="Statystyki" asp-action="Index"><i class="bi bi-bar-chart-fill me-2 text-warning"></i> Statystyki</a></li>
+                            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Pracownicy"><i class="bi bi-people me-2 text-info"></i> Konta użytkowników</a></li>
+                        </ul>
+                    </li>
+                    }
+                </ul>
+                <div class="d-flex align-items-center">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                    var user = await UserManager.GetUserAsync(User);
+                    <a class="user-section me-3 d-none d-md-block" asp-controller="Ustawienia" asp-action="Index">
+                        <small class="text-white">
+                            <i class="bi bi-person-fill text-primary me-1"></i>
+                            @user?.Imie @user?.Nazwisko
+                            <span class="text-muted mx-1">|</span>
+                            <span class="text-info">@(string.IsNullOrEmpty(user?.Sklep) ? $"Skaner: {user?.NumerSkanera}" : user?.Sklep)</span>
+                        </small>
+                    </a>
+                    <a class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" asp-controller="Account" asp-action="Logout">
+                        <i class="bi bi-power me-1"></i> Wyloguj
+                    </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container flex-grow-1">
+    <main role="main" class="pb-5">
+        @RenderBody()
+    </main>
+</div>
+
+<footer>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <span class="small fw-bold text-white">SmartWMS</span>
+                <span class="mx-2 text-muted">|</span>
+                <span class="small">System zarządzania magazynem</span>
+            </div>
+            <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                    <span class="footer-status">
+                        <span class="footer-dot"></span> Połączenie z bazą: Stabilne
+                    </span>
+                <span class="mx-2 text-muted">|</span>
+                <span class="small text-muted">@DateTime.Now.Year</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

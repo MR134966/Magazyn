@@ -1,0 +1,54 @@
+﻿<div class="container-fluid mt-4">
+    <h2 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2"></i> Panel Administracyjny</h2>
+    
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-uppercase mb-1 small opacity-75">Wszystkie zamówienia</h6>
+                        <h2 class="fw-bold mb-0">@ViewBag.SumaZamowien</h2>
+                    </div>
+                    <i class="bi bi-file-earmark-text fs-1 opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0 opacity-75 text-end">
+                    <a asp-action="Zamowienia" class="text-white text-decoration-none small">Zarządzaj <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-uppercase mb-1 small opacity-75">Niskie stany / Braki</h6>
+                        <h2 class="fw-bold mb-0">@ViewBag.NiskieStany</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0 opacity-75 text-end">
+                    <a asp-action="Dostawy" class="text-white text-decoration-none small">Uzupełnij <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-uppercase mb-1 small opacity-75">Pracownicy magazynu</h6>
+                        <h2 class="fw-bold mb-0">@ViewBag.LiczbaPracownikow</h2>
+                    </div>
+                    <i class="bi bi-people fs-1 opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0 opacity-75 text-end">
+                    <a asp-action="Pracownicy" class="text-white text-decoration-none small">Zarządzaj <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <a asp-controller="Statystyki" asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-bar-chart-fill me-1"></i> Statystyki magazynu
+        </a>
+    </div>
+</div>

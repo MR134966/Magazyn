@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Nowe Zamówienie";
+    var produkty = ViewBag.Produkty as List<Proejkt_magazyn.Models.Produkt>;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-cart-plus-fill text-primary me-2"></i>Katalog Produktów</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill fw-bold">Wróć do panelu</a>
+    </div>
+
+    <form asp-action="ZlozZamowienie" method="post">
+        <div class="row g-4 mb-4">
+            @foreach (var p in produkty)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center p-4">
+                            <input type="hidden" name="produktId" value="@p.Id" />
+                            
+                            <h5 class="fw-bold mb-2">@p.Nazwa</h5>
+                            <p class="small text-muted mb-4">Aleja @p.Aleja | Waga: @p.WagaKg kg</p>
+                            
+                            <div class="input-group mb-3 shadow-sm rounded-pill overflow-hidden">
+                                <span class="input-group-text bg-light border-0 text-muted">Ilość:</span>
+                                <input type="number" name="ilosc" value="0" min="0" max="100" class="form-control border-0 text-center fw-bold bg-light" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="card bg-dark text-white border-0 shadow-lg rounded-4 sticky-bottom mb-4">
+            <div class="card-body d-flex justify-content-between align-items-center p-4">
+                <h4 class="m-0 fw-bold">Podsumowanie zamówienia</h4>
+                <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill px-5 shadow">
+                    Wyślij Zlecenie <i class="bi bi-send-fill ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
