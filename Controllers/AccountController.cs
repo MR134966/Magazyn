@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Proejkt_magazyn.Models;
 
@@ -41,9 +41,9 @@ public class AccountController : Controller
                         return RedirectToAction("Index", "Klient");
                     }
                     
-                    if (roles.Contains("Operator"))
+                    if (roles.Contains("Pracownik"))
                     {
-                        return RedirectToAction("Index", "Pracownik");
+                        return RedirectToAction("ListaZlecen", "Pracownik");
                     }
 
                     if (roles.Contains("Admin"))
