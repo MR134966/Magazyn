@@ -49,7 +49,7 @@ public class UstawieniaController : Controller
         }
 
         await _userManager.UpdateAsync(user);
-        await _signInManager.RefreshSignInAsync(user); // Odświeża sesję, by u góry zaktualizowało się imię
+        await _signInManager.RefreshSignInAsync(user); 
 
         TempData["StatusMessage"] = "Profil został pomyślnie zaktualizowany!";
         return RedirectToAction(nameof(Index));

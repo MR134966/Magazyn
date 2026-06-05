@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Proejkt_magazyn.Data;         
 using Microsoft.AspNetCore.Identity;
 using Proejkt_magazyn.Models;
+
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,13 +25,11 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<MagazynDbContext>();
 
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
 });
 
 var app = builder.Build();
