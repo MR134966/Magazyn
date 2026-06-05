@@ -9,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<Proejkt_magazyn.Services.SmartAllocationService>();
 
+var connectionString = builder.Configuration.GetConnectionString("MagazynConnection");
 builder.Services.AddDbContext<MagazynDbContext>(options =>
-    options.UseSqlite("Data Source=magazyn.db"));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
         options.Password.RequireDigit = false;
