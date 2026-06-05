@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject UserManager<Proejkt_magazyn.Models.ApplicationUser> UserManager
 @model Proejkt_magazyn.Services.WynikOptymalizacji
 @{
@@ -215,9 +215,8 @@
                                 }
                             </h5>
                             <div class="mt-1">
-                                <span class="badge @(porada.AlertWysokosci ? "bg-warning text-dark" : "bg-secondary") rounded-pill">
+                                <span class="badge bg-secondary rounded-pill">
                                     @porada.InstrukcjaUlozenia
-                                    @if (porada.AlertWysokosci) { <text> · @porada.SprzetDedykowany</text> }
                                 </span>
                             </div>
                         </div>

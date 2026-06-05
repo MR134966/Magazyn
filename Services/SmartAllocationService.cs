@@ -1,4 +1,4 @@
-﻿using Proejkt_magazyn.Models;
+using Proejkt_magazyn.Models;
 
 namespace Proejkt_magazyn.Services;
 
@@ -6,8 +6,6 @@ public class PoradaBHP
 {
     public int PozycjaId { get; set; }
     public string InstrukcjaUlozenia { get; set; } = string.Empty;
-    public string SprzetDedykowany { get; set; } = string.Empty;
-    public bool AlertWysokosci { get; set; }
 }
 
 public class WynikOptymalizacji
@@ -62,8 +60,6 @@ public class SmartAllocationService
                 porada.InstrukcjaUlozenia = "Standard — środek palety";
             }
 
-            porada.SprzetDedykowany = poz.Produkt.Poziom >= 3 ? "Podest/Drabina robocza" : "Z poziomu 0";
-            porada.AlertWysokosci = poz.Produkt.Poziom >= 3;
             wynik.InstrukcjeDlaTowarow[poz.Id] = porada;
         }
 
