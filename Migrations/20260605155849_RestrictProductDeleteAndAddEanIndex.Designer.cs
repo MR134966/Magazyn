@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proejkt_magazyn.Data;
 
@@ -10,9 +11,11 @@ using Proejkt_magazyn.Data;
 namespace Proejkt_magazyn.Migrations
 {
     [DbContext(typeof(MagazynDbContext))]
-    partial class MagazynDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260605155849_RestrictProductDeleteAndAddEanIndex")]
+    partial class RestrictProductDeleteAndAddEanIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
