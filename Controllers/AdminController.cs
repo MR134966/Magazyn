@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +24,7 @@ public class AdminController : Controller
         ViewBag.SumaZamowien = await _context.Zamowienia.CountAsync();
         ViewBag.NiskieStany = await _context.Produkty.CountAsync(p => p.StanMagazynowy < 10);
         ViewBag.LiczbaPracownikow = (await _userManager.GetUsersInRoleAsync("Pracownik")).Count;
+        ViewBag.LiczbaKierownikow = (await _userManager.GetUsersInRoleAsync("Kierownik")).Count;
 
         return View();
     }
@@ -70,6 +71,18 @@ public class AdminController : Controller
             {
                 if (pozycja.IloscSztuk != nowaIlosc)
                 {
+                    int roznica = nowaIlosc - pozycja.IloscSztuk;
+
+                    
+                    if (roznica > 0 && pozycja.Produkt.StanMagazynowy < roznica)
+                    {
+                        TempData["Error"] = $"Nie można zwiększyć pozycji '{pozycja.Produkt.Nazwa}' o {roznica} szt. Brak wystarczającej ilości w magazynie (dostępne: {pozycja.Produkt.StanMagazynowy} szt.).";
+                        return RedirectToAction(nameof(SzczegolyZamowienia), new { id = zamowienieId });
+                    }
+
+                    
+                    pozycja.Produkt.StanMagazynowy -= roznica;
+
                     pozycja.IloscSztuk = nowaIlosc;
                     pozycja.CzyZebrane = false;
                     zaktualizowano++;
