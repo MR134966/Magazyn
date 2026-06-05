@@ -1,0 +1,154 @@
+﻿@model Proejkt_magazyn.Models.Zamowienie
+@{
+ViewData["Title"] = "Szczegóły Zamówienia";
+var postep = Model.Pozycje.Count > 0 ? (Model.Pozycje.Count(p => p.CzyZebrane) * 100) / Model.Pozycje.Count : 0;
+}
+
+<div class="container-fluid mt-4 mb-5">
+    @if (TempData["Success"] != null)
+    {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-box-seam me-2"></i>Zamówienie #@Model.Id.ToString("00000")</h3>
+            <p class="text-muted mb-0">Klient: <strong>@Model.NazwaKlienta</strong> | Data: @Model.DataZlozenia.ToString("dd.MM.yyyy HH:mm")</p>
+        </div>
+        <a asp-action="Zamowienia" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Wróć do listy</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light rounded d-flex align-items-center">
+            <h5 class="m-0 me-3 fw-bold">Postęp kompletacji:</h5>
+            <div class="progress flex-grow-1" style="height: 20px;">
+                <div class="progress-bar @(postep == 100 ? "bg-success" : "bg-warning text-dark fw-bold")"
+                     role="progressbar" style="width: @postep%;">
+                    @postep%
+                </div>
+            </div>
+            <span class="ms-3 fw-bold">@Model.Pozycje.Count(p => p.CzyZebrane) / @Model.Pozycje.Count poz.</span>
+        </div>
+    </div>
+
+    <form asp-action="ZapiszPoprawkiZamowienia" method="post" id="formPoprawki">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="zamowienieId" value="@Model.Id" />
+
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tabelaPozycji">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Produkt</th>
+                        <th>Kod EAN</th>
+                        <th>Aleja / Regał</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4" style="width: 160px;">Ilość sztuk</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var poz in Model.Pozycje)
+                    {
+                    <tr id="row_@poz.Id">
+                        <td class="ps-4 fw-bold">
+                            @poz.Produkt.Nazwa
+                            @if (poz.Produkt.CzyGazetka)
+                            {
+                            <span class="badge bg-danger ms-1">Gazetka</span>
+                            }
+                        </td>
+                        <td class="text-muted small"><i class="bi bi-upc-scan me-1"></i>@poz.Produkt.KodKreskowy</td>
+                        <td><span class="badge bg-dark">@poz.Produkt.Aleja@poz.Produkt.Regal</span></td>
+                        <td>
+                                    <span id="status_@poz.Id">
+                                        @if (poz.CzyZebrane)
+                                        {
+                                        <span class="badge bg-success"><i class="bi bi-check-lg me-1"></i> Zebrane</span>
+                                        }
+                                        else
+                                        {
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass me-1"></i> Oczekuje</span>
+                                        }
+                                    </span>
+                            <span class="badge bg-info text-dark d-none ms-1 id-zmieniono" id="badge_@poz.Id">Zmieniono</span>
+                        </td>
+                        <td class="pe-4">
+                            <div class="input-group input-group-sm">
+                                <input type="number" name="ilosc_@poz.Id" value="@poz.IloscSztuk" data-original="@poz.IloscSztuk" data-id="@poz.Id" class="form-control text-center fw-bold input-ilosc" min="1" />
+                                <span class="input-group-text bg-light">szt.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white border-0 py-3 text-end shadow-sm">
+                <button type="button" class="btn btn-primary fw-bold" id="btnZapiszPoprawki" disabled onclick="pokazPotwierdzenie()">
+                    <i class="bi bi-cloud-upload me-1"></i> Zapisz wprowadzone poprawki
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalPotwierdzenie" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-question-circle-fill me-2"></i> Zapisać zmiany?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="fs-5 mb-0">Wykryto zmodyfikowane pozycje. Czy na pewno chcesz zapisać nowe ilości i cofnąć te produkty do ponownej zbiórki?</p>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Anuluj</button>
+                <button type="button" class="btn btn-primary fw-bold" id="btnZatwierdzForm">Tak, zapisz i cofnij</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll('.input-ilosc');
+    const btnZapisz = document.getElementById('btnZapiszPoprawki');
+
+    inputs.forEach(input => {
+        input.addEventListener('input', function () {
+            const id = this.getAttribute('data-id');
+            const oryginalnaWartosc = this.getAttribute('data-original');
+            const row = document.getElementById('row_' + id);
+            const badge = document.getElementById('badge_' + id);
+
+            if (this.value !== oryginalnaWartosc) {
+                row.classList.add('table-info');
+                badge.classList.remove('d-none');
+            } else {
+                row.classList.remove('table-info');
+                badge.classList.add('d-none');
+            }
+
+            let czyCokolwiekZmieniono = false;
+            inputs.forEach(i => {
+                if (i.value !== i.getAttribute('data-original')) {
+                    czyCokolwiekZmieniono = true;
+                }
+            });
+            btnZapisz.disabled = !czyCokolwiekZmieniono;
+        });
+    });
+
+    function pokazPotwierdzenie() {
+        let modal = new bootstrap.Modal(document.getElementById('modalPotwierdzenie'));
+        modal.show();
+    }
+
+    document.getElementById('btnZatwierdzForm').addEventListener('click', function () {
+        document.getElementById('formPoprawki').submit();
+    });
+</script>

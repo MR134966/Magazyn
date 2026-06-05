@@ -39,6 +39,53 @@ public class AdminController : Controller
         return View(zamowienia);
     }
 
+    public async Task<IActionResult> SzczegolyZamowienia(int id)
+    {
+        var zamowienie = await _context.Zamowienia
+            .Include(z => z.Pozycje)
+            .ThenInclude(p => p.Produkt)
+            .FirstOrDefaultAsync(z => z.Id == id);
+
+        if (zamowienie == null) return NotFound();
+
+        return View(zamowienie);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ZapiszPoprawkiZamowienia(int zamowienieId, IFormCollection form)
+    {
+        var zamowienie = await _context.Zamowienia
+            .Include(z => z.Pozycje)
+            .ThenInclude(p => p.Produkt)
+            .FirstOrDefaultAsync(z => z.Id == zamowienieId);
+
+        if (zamowienie == null) return NotFound();
+
+        int zaktualizowano = 0;
+
+        foreach (var pozycja in zamowienie.Pozycje)
+        {
+            if (int.TryParse(form[$"ilosc_{pozycja.Id}"], out int nowaIlosc) && nowaIlosc > 0)
+            {
+                if (pozycja.IloscSztuk != nowaIlosc)
+                {
+                    pozycja.IloscSztuk = nowaIlosc;
+                    pozycja.CzyZebrane = false;
+                    zaktualizowano++;
+                }
+            }
+        }
+
+        if (zaktualizowano > 0)
+        {
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Pomyślnie zaktualizowano i cofnięto na skaner {zaktualizowano} pozycji.";
+        }
+
+        return RedirectToAction(nameof(SzczegolyZamowienia), new { id = zamowienieId });
+    }
+
     public async Task<IActionResult> Pracownicy()
     {
         var uzytkownicy = await _userManager.Users.OrderBy(u => u.Email).ToListAsync();

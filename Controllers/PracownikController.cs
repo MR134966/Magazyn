@@ -26,11 +26,18 @@ public class PracownikController : Controller
     {
         var zlecenia = await _context.Zamowienia
             .Include(z => z.Pozycje)
+            .Where(z => z.Pozycje.Any(p => !p.CzyZebrane))
             .ToListAsync();
+        
+        if (!zlecenia.Any())
+        {
+            return View("BrakZadan");
+        }
+
         return View(zlecenia);
     }
 
-    public async Task<IActionResult> Index(int id)
+    public async Task<IActionResult> Index(int id, bool kontynuacja = false)
     {
         var zamowienie = await _context.Zamowienia
             .Include(z => z.Pozycje)
@@ -41,6 +48,7 @@ public class PracownikController : Controller
 
         var plan = _aiService.AnalizujZamowienie(zamowienie);
         ViewBag.ZamowienieId = id;
+        ViewBag.Kontynuacja = kontynuacja;
         return View(plan);
     }
 
@@ -61,7 +69,6 @@ public class PracownikController : Controller
 
             await _context.SaveChangesAsync();
         }
-        return RedirectToAction(nameof(Index), new { id = zamowienieId });
+        return RedirectToAction(nameof(Index), new { id = zamowienieId, kontynuacja = true });
     }
-
 }

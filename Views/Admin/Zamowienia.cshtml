@@ -22,13 +22,14 @@
                         <th>Klient (sklep)</th>
                         <th>Pozycje</th>
                         <th>Postęp kompletacji</th>
+                        <th class="text-end pe-4">Akcje</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Brak zamówień w systemie.</td>
+                            <td colspan="6" class="text-center py-4 text-muted">Brak zamówień w systemie.</td>
                         </tr>
                     }
                     @foreach (var z in Model)
@@ -64,6 +65,11 @@
                                 {
                                     <span class="badge bg-primary">Oczekuje</span>
                                 }
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-action="SzczegolyZamowienia" asp-route-id="@z.Id" class="btn btn-sm btn-outline-primary fw-bold">
+                                    <i class="bi bi-search me-1"></i> Szczegóły
+                                </a>
                             </td>
                         </tr>
                     }
