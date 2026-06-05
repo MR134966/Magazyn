@@ -1,61 +1,105 @@
-﻿@model IEnumerable<Proejkt_magazyn.Models.Produkt>
+@model IEnumerable<Proejkt_magazyn.Models.Produkt>
 
 <div class="container-fluid mt-4">
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="border-left: 5px solid #20c997 !important; background: #e6fcf5;">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                <div class="text-success-emphasis fw-bold">@TempData["Success"]</div>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-left: 5px solid #fa5252 !important; background: #fff5f5;">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-4 me-3"></i>
+                <div class="text-danger-emphasis fw-bold">@TempData["Error"]</div>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <h3 class="fw-bold mb-4"><i class="bi bi-truck me-2"></i> Panel przyjęć towarowych</h3>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-truck text-primary me-2"></i>Przyjęcia Towarowe</h2>
+            <p class="text-muted small mb-0">Zarządzaj dostawami i zwiększaj stany magazynowe asortymentu</p>
+        </div>
+    </div>
 
-    <div class="card shadow-sm border-0">
+    <!-- Panel wyszukiwania i filtracji -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="input-group input-group-lg">
+                <span class="input-group-text bg-white border-end-0 text-primary">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="wyszukajDostawe" class="form-control border-start-0 fs-6" placeholder="Wyszukaj towar po nazwie, kodzie kreskowym EAN lub lokalizacji (np. GRO)..." oninput="filtrujDostawy()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela z towarami -->
+    <div class="card shadow-sm border-0 overflow-hidden">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
+                <thead class="table-dark" style="background-color: #111417;">
                     <tr>
-                        <th>EAN</th>
-                        <th>Produkt</th>
-                        <th class="text-center">Stan magazynowy</th>
-                        <th class="text-end pe-4">Zamówienie towaru</th>
+                        <th class="ps-4 py-3" style="width: 15%;">Kod EAN</th>
+                        <th class="py-3" style="width: 30%;">Nazwa Produktu</th>
+                        <th class="py-3" style="width: 20%;">Lokalizacja</th>
+                        <th class="text-center py-3" style="width: 15%;">Stan Magazynowy</th>
+                        <th class="text-end pe-4 py-3" style="width: 20%;">Zarządzaj Przyjęciem</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var p in Model)
                     {
-                        <tr>
-                            <td class="text-muted small">@p.KodKreskowy</td>
-                            <td class="fw-bold">@p.Nazwa</td>
+                        <tr class="produkt-wiersz" data-nazwa="@p.Nazwa.ToLower()" data-kod="@p.KodKreskowy.ToLower()" data-aleja="@p.Aleja.ToLower()">
+                            <td class="ps-4">
+                                <span class="badge bg-light text-dark font-monospace border">@p.KodKreskowy</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark fs-6">@p.Nazwa</div>
+                                <div class="text-muted small">Waga: @p.WagaKg kg · @(p.CzyDelikatne ? "Delikatny" : "Standard")</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> Aleja @p.Aleja · Regał @p.Regal (Poziom @p.Poziom)
+                                </span>
+                            </td>
                             <td class="text-center">
                                 @if (p.StanMagazynowy == 0)
                                 {
-                                    <span class="badge bg-danger fs-6" id="stan-@p.Id">0 szt.</span>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded" style="font-size: 0.9rem;">
+                                        <i class="bi bi-x-circle me-1"></i> 0 szt. (Brak)
+                                    </span>
                                 }
                                 else if (p.StanMagazynowy < 15)
                                 {
-                                    <span class="badge bg-warning text-dark fs-6" id="stan-@p.Id">@p.StanMagazynowy szt.</span>
+                                    <span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning px-3 py-2 rounded" style="font-size: 0.9rem;">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> @p.StanMagazynowy szt. (Niski)
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-success fs-6" id="stan-@p.Id">@p.StanMagazynowy szt.</span>
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded" style="font-size: 0.9rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i> @p.StanMagazynowy szt.
+                                    </span>
                                 }
                             </td>
                             <td class="text-end pe-4">
                                 <form asp-controller="Admin" asp-action="ZapiszDostawe" method="post" class="d-inline-flex gap-2 align-items-center">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="produktId" value="@p.Id" />
-                                    <input type="number" name="ilosc" class="form-control form-control-sm text-center" style="width: 90px;" value="50" min="1" required />
-                                    <button type="submit" class="btn btn-sm btn-success fw-bold">
-                                        <i class="bi bi-box-arrow-in-down me-1"></i> Zamów
+                                    <div class="input-group input-group-sm" style="width: 130px;">
+                                        <span class="input-group-text bg-light border-end-0 font-monospace text-muted">+</span>
+                                        <input type="number" name="ilosc" class="form-control text-center fw-bold border-start-0" value="50" min="1" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-success px-3 fw-bold shadow-sm">
+                                        <i class="bi bi-plus-lg me-1"></i> Przyjmij
                                     </button>
                                 </form>
                             </td>
@@ -66,3 +110,22 @@
         </div>
     </div>
 </div>
+
+<script>
+    function filtrujDostawy() {
+        let fraza = document.getElementById('wyszukajDostawe').value.toLowerCase();
+        let wiersze = document.querySelectorAll('.produkt-wiersz');
+
+        wiersze.forEach(wiersz => {
+            let nazwa = wiersz.getAttribute('data-nazwa');
+            let kod = wiersz.getAttribute('data-kod');
+            let aleja = wiersz.getAttribute('data-aleja');
+
+            if (nazwa.includes(fraza) || kod.includes(fraza) || aleja.includes(fraza)) {
+                wiersz.style.display = '';
+            } else {
+                wiersz.style.display = 'none';
+            }
+        });
+    }
+</script>
