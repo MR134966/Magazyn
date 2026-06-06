@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Proejkt_magazyn.Models.UserWithRolesViewModel>
+@model IEnumerable<Proejkt_magazyn.Models.UserWithRolesViewModel>
 @{
     var noweKonto = ViewBag.NoweKonto as Proejkt_magazyn.Models.DodajKontoViewModel ?? new Proejkt_magazyn.Models.DodajKontoViewModel();
     string EtykietaRoli(IList<string> role)
@@ -183,7 +183,7 @@
                                     }
                                     else
                                     {
-                                        <form asp-controller="Admin" asp-action="ZablokujKonto" method="post" class="d-inline" onsubmit="return confirm('Zablokować to konto?');">
+                                        <form asp-controller="Admin" asp-action="ZablokujKonto" method="post" class="d-inline block-form">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="userId" value="@u.User.Id" />
                                             <button type="submit" class="btn btn-sm btn-outline-warning text-dark" title="Zablokuj">
@@ -192,7 +192,7 @@
                                         </form>
                                     }
                                     
-                                    <form asp-controller="Admin" asp-action="UsunKonto" method="post" class="d-inline ms-1" onsubmit="return confirm('UWAGA! Czy na pewno chcesz TRWALE usunąć to konto?');">
+                                    <form asp-controller="Admin" asp-action="UsunKonto" method="post" class="d-inline ms-1 delete-form">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="userId" value="@u.User.Id" />
                                         <button type="submit" class="btn btn-sm btn-danger" title="Usuń konto">
@@ -212,3 +212,84 @@
         </div>
     </div>
 </div>
+
+<!-- Modal for Blocking -->
+<div class="modal fade" id="confirmBlockModal" tabindex="-1" aria-labelledby="confirmBlockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(30, 34, 40, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 16px; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold text-warning" id="confirmBlockModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Potwierdzenie blokady
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                Czy na pewno chcesz zablokować to konto? Użytkownik straci możliwość zalogowania się do systemu.
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 8px;" data-bs-dismiss="modal">Anuluj</button>
+                <button type="button" id="confirmBlockBtn" class="btn btn-warning btn-sm text-dark fw-bold" style="border-radius: 8px;">Zablokuj</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Deleting -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(30, 34, 40, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 16px; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold text-danger" id="confirmDeleteModalLabel">
+                    <i class="bi bi-trash3-fill me-2"></i>Potwierdzenie usunięcia
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                Czy na pewno chcesz <strong class="text-danger">TRWALE</strong> usunąć to konto? Ta operacja jest nieodwracalna.
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 8px;" data-bs-dismiss="modal">Anuluj</button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger btn-sm fw-bold" style="border-radius: 8px;">Usuń konto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let formToSubmit = null;
+    const blockModal = new bootstrap.Modal(document.getElementById('confirmBlockModal'));
+    const deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+
+    // Handle block form submissions
+    document.querySelectorAll('.block-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            formToSubmit = this;
+            blockModal.show();
+        });
+    });
+
+    // Handle delete form submissions
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            formToSubmit = this;
+            deleteModal.show();
+        });
+    });
+
+    // Handle confirm clicks
+    document.getElementById('confirmBlockBtn').addEventListener('click', function () {
+        if (formToSubmit) {
+            formToSubmit.submit();
+        }
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        if (formToSubmit) {
+            formToSubmit.submit();
+        }
+    });
+});
+</script>

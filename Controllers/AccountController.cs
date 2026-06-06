@@ -26,11 +26,21 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid)
         {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null && await _userManager.IsLockedOutAsync(user))
+            {
+                ModelState.AddModelError(string.Empty, "Konto zostało zablokowane.");
+                return View(model);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Haslo, false, false);
 
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    user = await _userManager.FindByEmailAsync(model.Email);
+                }
                 
                 if (user != null)
                 {

@@ -1,4 +1,4 @@
-﻿@model Proejkt_magazyn.Models.LoginViewModel
+@model Proejkt_magazyn.Models.LoginViewModel
 
 @{
 Layout = null;
@@ -223,10 +223,11 @@ Layout = null;
 
             @if (!ViewData.ModelState.IsValid)
             {
-            <div class="error-box">
-                <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
-                <div>Niepoprawny e-mail lub hasło</div>
-            </div>
+                var error = ViewData.ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Niepoprawny e-mail lub hasło";
+                <div class="error-box">
+                    <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
+                    <div>@error</div>
+                </div>
             }
 
             <div class="mb-4">
