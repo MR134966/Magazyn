@@ -4,6 +4,7 @@ Otwórz terminal w głównym katalogu projektu (tam gdzie znajduje się plik .cs
 Wykonaj poniższe polecenia:
 
 dotnet restore
+
 dotnet run
 
 
